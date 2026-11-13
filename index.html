@@ -1,0 +1,537 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>EDP Finals Practice Exam</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+/* Layout: one centered exam column; status bar on top, one item per screen, results with the answer key on the last screen. */
+:root {
+  --bg: #f3f5f9;
+  --surface: #ffffff;
+  --fg: #15203a;
+  --muted: #5b6784;
+  --line: #d9dfeb;
+  --accent: #2547d0;
+  --accent-fg: #ffffff;
+  --accent-soft: #e6ebfb;
+  --good: #14804a;
+  --good-bg: #dff4e8;
+  --good-bd: #3aa56c;
+  --bad: #b3261e;
+  --bad-bg: #fbe4e2;
+  --bad-bd: #d9645d;
+  --code-bg: #eef1f7;
+  --font-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1424; --surface: #161e33; --fg: #e8ecf7; --muted: #9aa6c4; --line: #2a3452;
+    --accent: #7f9bff; --accent-fg: #0e1424; --accent-soft: #1f2a4d;
+    --good: #5fd896; --good-bg: #12352420; --good-bd: #2f8f5d;
+    --bad: #ff8e86; --bad-bg: #3d1a1a; --bad-bd: #b3534d;
+    --code-bg: #0f1730;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1424; --surface: #161e33; --fg: #e8ecf7; --muted: #9aa6c4; --line: #2a3452;
+  --accent: #7f9bff; --accent-fg: #0e1424; --accent-soft: #1f2a4d;
+  --good: #5fd896; --good-bg: #12352420; --good-bd: #2f8f5d;
+  --bad: #ff8e86; --bad-bg: #3d1a1a; --bad-bd: #b3534d;
+  --code-bg: #0f1730;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.55;
+  padding-block: 24px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+.mono { font-family: var(--font-mono); }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.kicker { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; }
+
+/* start screen */
+.title-block { display: flex; flex-direction: column; gap: 6px; }
+.title-block h1 { font-size: clamp(26px, 5vw, 36px); line-height: 1.1; letter-spacing: -.01em; }
+.title-block .sub { color: var(--muted); font-size: 14px; }
+.title-block h2 { font-size: 20px; margin-top: 10px; }
+.parts { width: 100%; border-collapse: collapse; font-size: 14px; }
+.parts th, .parts td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); }
+.parts th { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.table-scroll { overflow-x: auto; }
+.fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.field label { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.field input, .answer-input {
+  font: inherit; color: var(--fg); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; width: 100%; min-width: 0;
+}
+.btn {
+  border: 1px solid var(--accent); background: var(--accent); color: var(--accent-fg);
+  border-radius: 8px; padding: 11px 20px; font-weight: 600; font-size: 15px;
+}
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.ghost { background: transparent; color: var(--accent); }
+.btn.quiet { background: transparent; border-color: var(--line); color: var(--muted); font-weight: 500; }
+
+/* status bar */
+.status { display: flex; flex-direction: column; gap: 8px; }
+.status-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; font-size: 14px; }
+.status-row strong { font-family: var(--font-display); font-size: 18px; font-variant-numeric: tabular-nums; }
+.bar { height: 6px; background: var(--line); border-radius: 99px; overflow: hidden; }
+.bar > span { display: block; height: 100%; width: 0; background: var(--accent); transition: width .25s ease; }
+
+/* question */
+.test-label { font-family: var(--font-display); font-weight: 600; font-size: 15px; letter-spacing: .01em; }
+.directions { color: var(--muted); font-size: 14px; margin: 4px 0 0; }
+.q-head { display: flex; gap: 14px; align-items: flex-start; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
+.q-num { font-family: var(--font-display); font-weight: 700; font-size: 22px; color: var(--accent); min-width: 2.4ch; font-variant-numeric: tabular-nums; }
+.q-text { font-size: 18px; line-height: 1.5; margin: 0; overflow-wrap: anywhere; }
+.code-line {
+  font-family: var(--font-mono); font-size: 15px; background: var(--code-bg);
+  border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; margin: 10px 0 0;
+  overflow-x: auto; white-space: pre; max-width: 100%;
+}
+.options { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+.opt {
+  display: flex; gap: 12px; align-items: center; text-align: left; width: 100%;
+  background: var(--surface); border: 1.5px solid var(--line); border-radius: 8px; padding: 12px 14px;
+  transition: border-color .12s, background .12s;
+}
+.opt .chip {
+  flex: none; width: 28px; height: 28px; border-radius: 6px; display: grid; place-items: center;
+  font-family: var(--font-display); font-weight: 600; font-size: 14px; background: var(--accent-soft); color: var(--accent);
+}
+.opt .txt { min-width: 0; overflow-wrap: anywhere; }
+.opt:not(:disabled):hover { border-color: var(--accent); background: var(--accent-soft); }
+.opt:disabled { cursor: default; }
+.opt.dim { opacity: .55; }
+.opt.correct { background: var(--good-bg); border-color: var(--good-bd); color: var(--good); font-weight: 600; opacity: 1; }
+.opt.correct .chip { background: var(--good); color: var(--bg); }
+.opt.wrong { background: var(--bad-bg); border-color: var(--bad-bd); color: var(--bad); font-weight: 600; opacity: 1; }
+.opt.wrong .chip { background: var(--bad); color: var(--bg); }
+.tf { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+.tf .opt { justify-content: center; font-family: var(--font-display); font-weight: 600; letter-spacing: .04em; }
+.typed { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+.typed .answer-input { flex: 1 1 220px; }
+.typed .answer-input.correct { background: var(--good-bg); border-color: var(--good-bd); color: var(--good); font-weight: 600; }
+.typed .answer-input.wrong { background: var(--bad-bg); border-color: var(--bad-bd); color: var(--bad); font-weight: 600; }
+.reveal { margin-top: 12px; padding: 10px 14px; border-radius: 8px; background: var(--good-bg); border: 1.5px solid var(--good-bd); color: var(--good); overflow-wrap: anywhere; }
+.feedback { min-height: 1.6em; margin: 12px 0 0; font-weight: 600; font-size: 15px; }
+.feedback.good { color: var(--good); }
+.feedback.bad { color: var(--bad); }
+.nav { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+/* results */
+.score-hero { display: flex; flex-wrap: wrap; gap: 20px 32px; align-items: flex-end; }
+.score-big { font-family: var(--font-display); font-size: clamp(44px, 10vw, 68px); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.score-big small { font-size: .4em; color: var(--muted); font-weight: 500; }
+.breakdown { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 18px; }
+.bd { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+.bd b { font-family: var(--font-display); font-size: 20px; font-variant-numeric: tabular-nums; }
+.bd span { font-size: 12px; color: var(--muted); }
+.key-title { font-size: 22px; }
+.key-sub { font-size: 13px; color: var(--muted); margin: 4px 0 0; }
+.legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: var(--muted); margin-top: 10px; }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: baseline; }
+.dot.g { background: var(--good-bd); } .dot.r { background: var(--bad-bd); }
+.key-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 8px; margin-top: 12px; }
+.kc { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font-size: 14px; display: flex; flex-direction: column; font-variant-numeric: tabular-nums; }
+.kc.ok { background: var(--good-bg); border-color: var(--good-bd); }
+.kc.no { background: var(--bad-bg); border-color: var(--bad-bd); }
+.kc small { font-size: 11px; color: var(--muted); }
+.key-table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 12px; min-width: 520px; }
+.key-table th, .key-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; overflow-wrap: anywhere; }
+.key-table th { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.key-table tr.ok td:last-child { color: var(--good); font-weight: 600; }
+.key-table tr.no td:last-child { color: var(--bad); font-weight: 600; }
+.key-table td:first-child { font-variant-numeric: tabular-nums; }
+.foot { font-size: 12px; color: var(--muted); letter-spacing: .04em; text-align: center; }
+@media (prefers-reduced-motion: reduce) { .bar > span, .opt { transition: none; } }
+</style>
+
+<div class="wrap" id="app"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- Exam content (copied from the questionnaire) ---------- */
+  var HEAD = {
+    course: "EVENT-DRIVEN PROGRAMMING",
+    line: "SITE | 1ST SEMESTER | FINALS | ACADEMIC YEAR: 2026-2027",
+    name: "FINALS PRACTICE QUESTIONNAIRE",
+    mods: "MODULES 7–10 | 100 ITEMS"
+  };
+  var PARTS = [
+    ["TEST I", "Multiple choice", "1–50", "Modules 7–10"],
+    ["TEST II", "Identification", "51–80", "Modules 7–10"],
+    ["TEST III", "True or False", "81–90", "Modules 7–10"],
+    ["TEST IV", "Complete the code", "91–100", "Modules 7–10"]
+  ];
+  var TESTS = {
+    1: { label: "TEST I — MULTIPLE CHOICE (ITEMS 1–50)", dir: "Directions: Choose the letter of the best answer. Write it on the blank before the number.", key: "TEST I — MULTIPLE CHOICE", total: 50, short: "Test I" },
+    2: { label: "TEST II — IDENTIFICATION (ITEMS 51–80)", dir: "Directions: Write the term or answer being described on the blank.", key: "TEST II — IDENTIFICATION", total: 30, short: "Test II" },
+    3: { label: "TEST III — TRUE OR FALSE (ITEMS 81–90)", dir: "Directions: Write TRUE if the statement is correct; write FALSE if it is not.", key: "TEST III — TRUE OR FALSE", total: 10, short: "Test III" },
+    4: { label: "TEST IV — COMPLETE THE CODE (ITEMS 91–100)", dir: "Directions: Write the missing word, method, or attribute that completes each line of code.", key: "TEST IV — COMPLETE THE CODE", total: 10, short: "Test IV" }
+  };
+
+  // [question, [A, B, C, D], index of correct option]
+  var MC = [
+    ["A UI element that changes its appearance, content, or behavior in response to user interaction without a full page reload is called a:", ["Dynamic interface component", "Static page element", "Server-side template", "Hyperlink reference"], 0],
+    ["Which dynamic component organizes content into sections that are shown one at a time?", ["Accordions", "Modals", "Breadcrumbs", "Tabs"], 3],
+    ["Which component is an overlay dialog that appears on top of the page and is dismissed by a close event?", ["Tab", "Accordion", "Modal", "Footer"], 2],
+    ["Which vanilla JavaScript property moves up one level to the parent element?", ["children", "nextElementSibling", "firstElementChild", "parentElement"], 3],
+    ["Which method walks up the DOM tree to find the nearest matching ancestor?", ["querySelectorAll()", "children", "closest(selector)", "previousElementSibling"], 2],
+    ["In a tab component, which attribute typically stores the reference to its content panel?", ["data-target", "data-style", "href-id", "tab-index-only"], 0],
+    ["With a framework, “it calls you.” This idea is known as:", ["Event bubbling", "Dependency hoisting", "Callback chaining", "Inversion of Control"], 3],
+    ["jQuery was first released in 2006 by:", ["John Resig", "Brendan Eich", "Evan You", "Jordan Walke"], 0],
+    ["Which is the correct shorthand for running jQuery code once the DOM is ready?", ["$(function() { ... });", "$(ready, function() { ... });", "$.onload(function() { ... });", "$(window).done(function() { ... });"], 0],
+    ["Which jQuery statement selects the element with id=\"header\"?", ["$(\".header\")", "$(\"#header\")", "$(\"header#\")", "$(\"@header\")"], 1],
+    ["Which jQuery method adds a class if it is absent and removes it if it is present?", ["addClass()", "switchClass()", "toggleClass()", "css()"], 2],
+    ["Event delegation works because events:", ["Skip the parent element", "Run only on the document object", "Bubble up from the target to its parent", "Are copied to every child automatically"], 2],
+    ["Which jQuery method creates custom transitions on numeric CSS properties?", [".fadeToggle()", ".css()", ".animate()", ".slideToggle()"], 2],
+    ["In $.ajax(), which option is the function that runs when the request succeeds?", ["success", "done-only", "complete-data", "onload"], 0],
+    ["According to the module, you should avoid jQuery when:", ["Building a new single-page application", "Maintaining a legacy codebase", "Working on a WordPress theme", "Rapidly prototyping"], 0],
+    ["JavaScript being “single-threaded” means it:", ["Cannot run asynchronous code", "Runs each function in a separate thread", "Can only do one thing at a time on its main thread", "Needs a server to execute code"], 2],
+    ["Which part handles long operations such as timers and network requests outside the main thread?", ["Call stack", "DOM tree", "Callback hell", "Web APIs"], 3],
+    ["The event loop moves a callback from the queue to the call stack when:", ["The call stack is empty", "The callback is the largest", "The user clicks the page", "The server responds with 200"], 0],
+    ["Which is the correct order of async techniques from earliest to latest?", ["Promises → Callbacks → async/await", "Callbacks → Promises → async/await", "async/await → Promises → Callbacks", "Callbacks → async/await → Promises"], 1],
+    ["A Promise whose request is still in-flight is in which state?", ["Fulfilled", "Rejected", "Resolved-failed", "Pending"], 3],
+    ["fetch() returns:", ["The parsed JSON data directly", "A string of HTML", "An XMLHttpRequest object", "A Promise that resolves to a Response object"], 3],
+    ["A server replies with HTTP 404. What happens to the fetch() Promise?", ["It rejects and triggers .catch()", "It stays pending forever", "It still fulfills; you must check the status", "It automatically retries"], 2],
+    ["response.ok is true for status codes in the range:", ["100–199", "200–299", "300–399", "400–599"], 1],
+    ["Calling response.json() returns:", ["A plain JavaScript object", "A JSON string", "A boolean", "A Promise"], 3],
+    ["Which method runs requests in parallel and fails fast if any one rejects?", ["Promise.allSettled()", "Promise.race()", "Promise.any-first()", "Promise.all()"], 3],
+    ["Which method waits for every Promise to finish, even the ones that fail?", ["Promise.all()", "Promise.race()", "Promise.allSettled()", "Promise.resolve()"], 2],
+    ["async/await is best described as:", ["A replacement for the event loop", "Syntactic sugar over Promises", "A multi-threading feature", "A type of callback queue"], 1],
+    ["In Event-Driven Programming, the flow of the program is determined by:", ["A fixed top-to-bottom sequence", "Events", "The size of the call stack", "The number of functions written"], 1],
+    ["Which set lists the three building blocks of EDP in the module?", ["Event, Handler, Event Loop", "Request, Response, Server", "Producer, Cache, Router", "Class, Object, Method"], 0],
+    ["Which is an example of a SYSTEM event?", ["A mouse click", "A setTimeout timer firing", "A form submission", "A key press"], 1],
+    ["Which method removes a previously registered event handler?", ["removeEventListener()", "deleteHandler()", "off-only()", "clearEvent()"], 0],
+    ["Which HTTP method is used to CREATE data in REST?", ["GET", "PUT", "DELETE", "POST"], 3],
+    ["Which is a main drawback of polling?", ["It wastes bandwidth with redundant requests", "It updates instantly with no delay", "It requires a message broker", "It cannot use HTTP"], 0],
+    ["Which of the following is an example of an event broker?", ["jQuery", "Pinia", "Kafka", "Vue Router"], 2],
+    ["“Producers don’t know about consumers” describes:", ["Tight coupling", "Eventual deletion", "Polling", "Loose coupling"], 3],
+    ["Processing the same event twice with no extra side effects is called:", ["Eventual consistency", "Idempotency", "Backoff", "Serialization"], 1],
+    ["Which converts a JavaScript object into a JSON string?", ["JSON.parse()", "JSON.object()", "JSON.stringify()", "JSON.decode()"], 2],
+    ["Exponential backoff in retries means:", ["Retrying immediately every time", "Waiting longer between each attempt", "Retrying only once", "Skipping failed events"], 1],
+    ["What is the shorthand for v-on in Vue 3?", ["@", ":", "#", "$"], 0],
+    ["Which Vue modifier stops the browser’s default behavior, such as a form reload?", [".stop", ".prevent", ".once", ".self-only"], 1],
+    ["Which Vue modifier stops the event from bubbling to parent elements?", [".prevent", ".stop", ".capture-only", ".default"], 1],
+    ["Which function declares the props a child component expects?", ["defineEmits()", "ref()", "reactive()", "defineProps()"], 3],
+    ["How does a child component tell its parent that something happened?", ["It edits the parent’s props directly", "It reloads the page", "It emits a custom event", "It writes to the parent’s DOM"], 2],
+    ["Which directive is best for elements that toggle very frequently?", ["v-if", "v-else", "v-show", "v-for"], 2],
+    ["Which tool is mentioned as a state store for Vue 3?", ["Pinia", "Lodash", "Axios", "Next.js"], 0],
+    ["sessionStorage data is cleared when:", ["The browser restarts only", "Never — it is permanent", "The page is refreshed", "The tab or session is closed"], 3],
+    ["Which kind of data should NEVER be placed in localStorage?", ["Theme preference", "Passwords and tokens", "Language setting", "Last visited page"], 1],
+    ["Which storage option is fully asynchronous and handles large, structured data?", ["sessionStorage", "IndexedDB", "localStorage", "Cookies only"], 1],
+    ["In Vue 3, which function creates a reactive primitive value?", ["defineProps()", "ref()", "v-model()", "emit()"], 1],
+    ["The end-to-end flow of the module’s demo app is:", ["Event → State → Storage → Restore", "Storage → Event → Restore → State", "State → Restore → Event → Storage", "Restore → Storage → State → Event"], 0]
+  ];
+
+  // [question, answer shown in key, module, accepted typed answers]
+  var ID = [
+    ["The tree-like representation of an HTML document in which every element is a node.", "DOM (Document Object Model)", 7, ["DOM", "Document Object Model", "DOM (Document Object Model)", "DOM tree"]],
+    ["The element directly above another element in the DOM tree.", "Parent node", 7, ["Parent node", "Parent", "Parent element", "parentNode", "parentElement"]],
+    ["The jQuery function, written as $ or jQuery(), that begins every jQuery statement.", "$() / jQuery function", 7, ["$()", "$", "jQuery()", "jQuery", "jQuery function", "$ function", "$() function", "$() / jQuery function", "$ or jQuery()"]],
+    ["The technique of attaching one listener to a parent to handle events from its children, including dynamically added ones.", "Event delegation", 7, ["Event delegation", "Delegation", "Delegated events"]],
+    ["The recommended jQuery method for attaching event handlers.", ".on()", 7, [".on()", ".on", "on", "on()"]],
+    ["The jQuery shorthand method that loads HTML from a file into an element.", ".load()", 7, [".load()", ".load", "load", "load()"]],
+    ["A collection of pre-written functions that you call when needed, where you control the flow.", "Library", 7, ["Library", "A library", "Code library", "Software library"]],
+    ["The motto of jQuery.", "“Write less, do more.”", 7, ["Write less, do more.", "Write less do more", "Write less, do more"]],
+    ["The mechanism that moves completed callbacks from the queue to the call stack when the stack is empty.", "Event loop", 8, ["Event loop", "The event loop"]],
+    ["The early async technique whose deep nesting led to “callback hell.”", "Callbacks", 8, ["Callbacks", "Callback", "Callback functions"]],
+    ["The Promise state that means the request succeeded and the Response is ready.", "Fulfilled", 8, ["Fulfilled", "Fulfilled state"]],
+    ["The Response property that is true only for status codes 200–299.", "response.ok", 8, ["response.ok", "ok", ".ok"]],
+    ["The second parameter of fetch() that controls method, headers, and body.", "Options object", 8, ["Options object", "Options", "Init object", "Options parameter"]],
+    ["The Promise method that settles as soon as the first Promise settles; useful for timeouts.", "Promise.race()", 8, ["Promise.race()", "Promise.race", "race", "race()"]],
+    ["The ES2017 syntax that is syntactic sugar over Promises.", "async/await", 8, ["async/await", "async await", "async and await", "async-await"]],
+    ["The pattern in which a client repeatedly asks the server whether data is ready.", "Polling", 9, ["Polling", "Polling pattern", "Poll"]],
+    ["An HTTP callback in which the server pushes a request to your URL when an event occurs.", "Webhook", 9, ["Webhook", "Webhooks", "Web hook"]],
+    ["The component that buffers and routes events between producers and consumers (e.g., Kafka).", "Broker (event broker)", 9, ["Broker", "Event broker", "Broker (event broker)", "Message broker"]],
+    ["The messaging pattern where one event triggers multiple independent services.", "Pub/Sub", 9, ["Pub/Sub", "PubSub", "Publish/Subscribe", "Publish Subscribe", "Publish and Subscribe"]],
+    ["The reliability tool where undeliverable events are routed for later inspection.", "Dead Letter Queue (DLQ)", 9, ["Dead Letter Queue", "DLQ", "Dead Letter Queue (DLQ)", "Dead-letter queue"]],
+    ["The HTTP method used to remove data in REST.", "DELETE", 9, ["DELETE", "HTTP DELETE"]],
+    ["The JSON method that converts a JSON string into a JavaScript object.", "JSON.parse()", 9, ["JSON.parse()", "JSON.parse", "parse", "parse()"]],
+    ["The event type that includes timers, network responses, and file reads.", "System events", 9, ["System events", "System event", "System"]],
+    ["The Vue 3 event modifier that stops event bubbling.", ".stop", 10, [".stop", "stop", "@click.stop"]],
+    ["The Vue 3 function used inside a child component to declare the props it accepts.", "defineProps()", 10, ["defineProps()", "defineProps"]],
+    ["The state-management store used with Vue 3 in the module.", "Pinia", 10, ["Pinia"]],
+    ["The browser storage that lives only for one tab session.", "sessionStorage", 10, ["sessionStorage", "session storage"]],
+    ["The asynchronous browser database that stores structured objects and blobs.", "IndexedDB", 10, ["IndexedDB", "Indexed DB"]],
+    ["The Vue directive that removes and recreates elements in the DOM.", "v-if", 10, ["v-if", "v-if directive"]],
+    ["The Vue feature in which the DOM updates automatically when state changes.", "Reactivity", 10, ["Reactivity", "Vue reactivity"]]
+  ];
+
+  // [statement, answer, module]
+  var TF = [
+    ["jQuery is released as open source under the MIT License.", true, 7],
+    ["$(\"#id\") is the jQuery equivalent of document.getElementById(\"id\").", true, 7],
+    ["A 404 response causes the fetch() Promise to reject.", false, 8],
+    ["Promise.race() settles as soon as the first Promise settles.", true, 8],
+    ["JavaScript’s main thread can run two functions at exactly the same time.", false, 8],
+    ["PUT/PATCH is the REST method used to create brand-new data.", false, 9],
+    ["In pub/sub, producers must know exactly which consumers will receive their events.", false, 9],
+    ["localStorage data is automatically cleared when the tab is closed.", false, 10],
+    ["v-show removes the element from the DOM when it is hidden.", false, 10],
+    ["Props pass data from a parent component down to a child component.", true, 10]
+  ];
+
+  // [prompt, code line, answer, module, accepted typed answers]
+  var CODE = [
+    ["To handle clicks on items added later:", "$(\"ul\").____(\"click\", \".list-item\", fn);", "on", 7, ["on", ".on", "on()"]],
+    ["To add the class if absent or remove it if present:", "$(\".btn\").____(\"active\");", "toggleClass", 7, ["toggleClass", ".toggleClass", "toggleClass()"]],
+    ["To fade out slowly:", "$(\".alert\").____(\"slow\");", "fadeOut", 7, ["fadeOut", ".fadeOut", "fadeOut()"]],
+    ["", "if (!response.____) { throw new Error(\"HTTP \" + response.status); }", "ok", 8, ["ok", ".ok"]],
+    ["", "fetch(url).then(res => res.____()) // parse the body as JSON", "json", 8, ["json", ".json", "json()"]],
+    ["Run both requests in parallel and fail fast:", "Promise.____([fetch(a), fetch(b)]);", "all", 8, ["all", ".all", "all()"]],
+    ["", "const user = JSON.____(text); // string → object", "parse", 9, ["parse", ".parse", "parse()"]],
+    ["", "localStorage.____(\"theme\", \"dark\"); // save a value", "setItem", 10, ["setItem", ".setItem", "setItem()"]],
+    ["", "<button ____=\"save\">Save</button> // shorthand for v-on:click", "@click", 10, ["@click"]],
+    ["", "<form @submit.____=\"onSubmit\"> // stops the page from reloading", "prevent", 10, ["prevent", ".prevent"]]
+  ];
+
+  var LETTERS = ["A", "B", "C", "D"];
+  var Q = [];
+  MC.forEach(function (m, k) { Q.push({ n: k + 1, t: 1, kind: "mc", q: m[0], opts: m[1], a: m[2] }); });
+  ID.forEach(function (m, k) { Q.push({ n: 51 + k, t: 2, kind: "text", q: m[0], key: m[1], mod: m[2], accept: m[3] }); });
+  TF.forEach(function (m, k) { Q.push({ n: 81 + k, t: 3, kind: "tf", q: m[0], a: m[1] ? 0 : 1, key: m[1] ? "TRUE" : "FALSE", mod: m[2], opts: ["TRUE", "FALSE"] }); });
+  CODE.forEach(function (m, k) { Q.push({ n: 91 + k, t: 4, kind: "text", q: m[0], code: m[1], key: m[2], mod: m[3], accept: m[4] }); });
+
+  /* ---------- helpers ---------- */
+  var app = document.getElementById("app");
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+  function norm(s) {
+    return String(s).toLowerCase().replace(/[^a-z0-9$@\s_-]/g, "").replace(/\s+/g, " ").trim().replace(/^the /, "");
+  }
+  function matches(q, val) {
+    var v = norm(val);
+    if (!v) return false;
+    return q.accept.some(function (a) { return norm(a) === v; });
+  }
+
+  var idx = 0, score = 0, R = [], who = { name: "", section: "", date: "" };
+
+  /* ---------- screens ---------- */
+  function titleBlock(h2) {
+    return '<div class="title-block"><div class="kicker">' + esc(HEAD.line) + '</div>' +
+      '<h1>' + esc(HEAD.course) + '</h1>' +
+      '<h2>' + esc(HEAD.name) + '</h2>' +
+      '<div class="sub">' + esc(HEAD.mods) + '</div></div>';
+  }
+
+  function showStart() {
+    var rows = PARTS.map(function (p) {
+      return "<tr><td><strong>" + esc(p[0]) + "</strong></td><td>" + esc(p[1]) + "</td><td>" + esc(p[2]) + "</td><td>" + esc(p[3]) + "</td></tr>";
+    }).join("");
+    app.innerHTML =
+      '<div class="card">' + titleBlock() + '</div>' +
+      '<div class="card"><div class="table-scroll"><table class="parts"><thead><tr><th>PART</th><th>TYPE</th><th>ITEMS</th><th>COVERAGE</th></tr></thead><tbody>' + rows + '</tbody></table></div></div>' +
+      '<div class="card"><div class="fields">' +
+      '<div class="field"><label for="f-name">Name</label><input id="f-name" type="text" autocomplete="name"></div>' +
+      '<div class="field"><label for="f-section">Section</label><input id="f-section" type="text"></div>' +
+      '<div class="field"><label for="f-date">Date</label><input id="f-date" type="text" value="' + esc(new Date().toLocaleDateString("en-PH", { year: "numeric", month: "long", day: "numeric" })) + '"></div>' +
+      '</div></div>' +
+      '<div class="nav"><span class="foot" style="text-align:left">100 items · 1 point each · Total 100</span><button class="btn" id="start">Start exam</button></div>';
+    document.getElementById("start").onclick = function () {
+      who.name = document.getElementById("f-name").value.trim();
+      who.section = document.getElementById("f-section").value.trim();
+      who.date = document.getElementById("f-date").value.trim();
+      idx = 0; score = 0; R = [];
+      showQ();
+    };
+  }
+
+  function statusHTML() {
+    var pct = Math.round((idx / Q.length) * 100);
+    return '<div class="status"><div class="status-row"><span>Item <strong>' + (idx + 1) + '</strong> of ' + Q.length + '</span>' +
+      '<span>Score <strong id="score">' + score + '</strong> / ' + Q.length + '</span></div>' +
+      '<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct + '"><span style="width:' + pct + '%"></span></div></div>';
+  }
+
+  function showQ() {
+    var q = Q[idx], t = TESTS[q.t];
+    var body = "";
+    var head = '<div class="test-label">' + esc(t.label) + '</div><p class="directions">' + esc(t.dir) + '</p>';
+    var qhtml = '<div class="q-head"><div class="q-num">' + q.n + '.</div><div>' +
+      (q.q ? '<p class="q-text">' + esc(q.q) + '</p>' : '') +
+      (q.code ? '<pre class="code-line">' + esc(q.code) + '</pre>' : '') + '</div></div>';
+
+    if (q.kind === "mc") {
+      body = '<div class="options">' + q.opts.map(function (o, i) {
+        return '<button class="opt" data-i="' + i + '"><span class="chip">' + LETTERS[i] + '</span><span class="txt">' + esc(o) + '</span></button>';
+      }).join("") + '</div>';
+    } else if (q.kind === "tf") {
+      body = '<div class="tf">' + q.opts.map(function (o, i) {
+        return '<button class="opt" data-i="' + i + '">' + esc(o) + '</button>';
+      }).join("") + '</div>';
+    } else {
+      body = '<div class="typed"><input class="answer-input' + (q.code ? " mono" : "") + '" id="ans" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Your answer for item ' + q.n + '" placeholder="Type your answer">' +
+        '<button class="btn" id="check" disabled>Check answer</button></div>';
+    }
+
+    app.innerHTML =
+      statusHTML() +
+      '<div class="card">' + head + qhtml + body + '<p class="feedback" id="fb" aria-live="polite"></p></div>' +
+      '<div class="nav"><button class="btn quiet" id="skip">Skip item</button>' +
+      '<button class="btn" id="next" disabled>' + (idx === Q.length - 1 ? "See results" : "Next") + '</button></div>';
+
+    document.getElementById("next").onclick = advance;
+    document.getElementById("skip").onclick = function () { record(false, null); };
+
+    if (q.kind === "mc" || q.kind === "tf") {
+      Array.prototype.forEach.call(app.querySelectorAll(".opt"), function (b) {
+        b.onclick = function () { chooseOpt(parseInt(b.getAttribute("data-i"), 10)); };
+      });
+    } else {
+      var inp = document.getElementById("ans"), chk = document.getElementById("check");
+      inp.oninput = function () { chk.disabled = !inp.value.trim(); };
+      inp.onkeydown = function (e) { if (e.key === "Enter" && inp.value.trim() && !chk.disabled) { e.preventDefault(); submitText(); } };
+      chk.onclick = submitText;
+      inp.focus();
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function lock() {
+    Array.prototype.forEach.call(app.querySelectorAll(".opt"), function (b) { b.disabled = true; });
+    var inp = document.getElementById("ans"), chk = document.getElementById("check");
+    if (inp) inp.disabled = true;
+    if (chk) chk.disabled = true;
+    document.getElementById("skip").hidden = true;
+    var nx = document.getElementById("next");
+    nx.disabled = false;
+    nx.focus();
+  }
+
+  function setFeedback(ok, skipped) {
+    var fb = document.getElementById("fb");
+    fb.className = "feedback " + (ok ? "good" : "bad");
+    fb.textContent = ok ? "Correct. +1 point" : (skipped ? "Skipped. 0 points" : "Incorrect. 0 points");
+  }
+
+  function record(ok, resp) {
+    if (R[idx]) return;
+    R[idx] = { ok: ok, resp: resp };
+    if (ok) score++;
+    document.getElementById("score").textContent = score;
+    lock();
+    if (!ok) revealAnswer();
+    if (resp === null) setFeedback(false, true);
+  }
+
+  function revealAnswer() {
+    var q = Q[idx];
+    if (q.kind === "mc" || q.kind === "tf") {
+      var b = app.querySelectorAll(".opt")[q.a];
+      b.classList.remove("dim");
+      b.classList.add("correct");
+    } else {
+      var typed = app.querySelector(".typed");
+      var d = document.createElement("div");
+      d.className = "reveal";
+      d.innerHTML = 'Correct answer: <strong class="mono">' + esc(q.key) + '</strong>';
+      typed.insertAdjacentElement("afterend", d);
+    }
+  }
+
+  function chooseOpt(i) {
+    var q = Q[idx];
+    var ok = i === q.a;
+    var btns = app.querySelectorAll(".opt");
+    Array.prototype.forEach.call(btns, function (b, k) {
+      if (k === i) b.classList.add(ok ? "correct" : "wrong");
+      else b.classList.add("dim");
+    });
+    record(ok, i);
+    setFeedback(ok, false);
+  }
+
+  function submitText() {
+    var q = Q[idx], inp = document.getElementById("ans");
+    var val = inp.value.trim();
+    var ok = matches(q, val);
+    inp.classList.add(ok ? "correct" : "wrong");
+    record(ok, val);
+    setFeedback(ok, false);
+  }
+
+  function advance() {
+    if (idx < Q.length - 1) { idx++; showQ(); } else { showResults(); }
+  }
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && R[idx] && document.getElementById("next") && document.activeElement && document.activeElement.tagName !== "BUTTON") {
+      e.preventDefault(); advance();
+    }
+  });
+
+  /* ---------- results + answer key ---------- */
+  function respLabel(q, r) {
+    if (!r || r.resp === null) return "no answer";
+    if (q.kind === "mc") return LETTERS[r.resp];
+    if (q.kind === "tf") return q.opts[r.resp];
+    return r.resp;
+  }
+
+  function showResults() {
+    var per = { 1: 0, 2: 0, 3: 0, 4: 0 };
+    Q.forEach(function (q, i) { if (R[i] && R[i].ok) per[q.t]++; });
+    var pct = Math.round((score / Q.length) * 100);
+
+    var who_ = [who.name, who.section, who.date].filter(Boolean).join(" · ");
+    var bd = [1, 2, 3, 4].map(function (k) {
+      return '<div class="bd"><b>' + per[k] + ' / ' + TESTS[k].total + '</b><span>' + esc(TESTS[k].short + " — " + PARTS[k - 1][1]) + '</span></div>';
+    }).join("");
+
+    var html = '<div class="card">' + titleBlock() +
+      (who_ ? '<p class="key-sub" style="margin-top:10px">' + esc(who_) + '</p>' : '') +
+      '<div class="score-hero" style="margin-top:18px"><div><div class="kicker">Score</div><div class="score-big">' + score + '<small> / ' + Q.length + '</small></div></div>' +
+      '<div><div class="kicker">Percent</div><div class="score-big">' + pct + '<small>%</small></div></div></div>' +
+      '<div class="breakdown">' + bd + '</div></div>';
+
+    html += '<div class="card"><h2 class="key-title">ANSWER KEY</h2>' +
+      '<div class="legend"><span><i class="dot g"></i>You answered correctly</span><span><i class="dot r"></i>Missed or skipped</span></div>';
+
+    // Test I
+    html += '<h3 style="margin-top:22px;font-size:16px">' + esc(TESTS[1].key) + '</h3><div class="key-grid">';
+    for (var i = 0; i < 50; i++) {
+      var q = Q[i], r = R[i], ok = r && r.ok;
+      html += '<div class="kc ' + (ok ? "ok" : "no") + '"><span><strong>' + q.n + '.</strong> ' + LETTERS[q.a] + '</span>' +
+        (ok ? "" : '<small>you: ' + esc(respLabel(q, r)) + '</small>') + '</div>';
+    }
+    html += '</div>';
+
+    // Tests II–IV tables
+    [2, 3, 4].forEach(function (t) {
+      html += '<h3 style="margin-top:26px;font-size:16px">' + esc(TESTS[t].key) + '</h3><div class="table-scroll"><table class="key-table"><thead><tr><th>NO.</th><th>ANSWER</th><th>MODULE</th><th>YOUR ANSWER</th></tr></thead><tbody>';
+      Q.forEach(function (q, i) {
+        if (q.t !== t) return;
+        var r = R[i], ok = r && r.ok;
+        html += '<tr class="' + (ok ? "ok" : "no") + '"><td>' + q.n + '</td><td>' + esc(q.key) + '</td><td>' + q.mod + '</td><td>' + esc(respLabel(q, r)) + '</td></tr>';
+      });
+      html += '</tbody></table></div>';
+    });
+    html += '</div>';
+
+    html += '<div class="nav"><span class="foot" style="text-align:left">PREPARED BY: BCNV</span><button class="btn" id="retake">Retake exam</button></div>';
+    app.innerHTML = html;
+    document.getElementById("retake").onclick = showStart;
+    window.scrollTo(0, 0);
+  }
+
+  showStart();
+})();
+</script>
+
+</body></html>
